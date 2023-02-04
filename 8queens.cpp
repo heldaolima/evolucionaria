@@ -1,4 +1,6 @@
 #define NDEBUG
+#define UNLIMITED
+
 #include <iostream>
 #include <vector>
 #include <cstdlib>
@@ -98,9 +100,6 @@ Population selection(Population population)
 
     Individual parent1, parent2; 
     
-    // check_mem(parent1);
-    // check_mem(parent2);
-
     for (auto indiv: population) {
         somatorio_fitness += indiv.fitness_value;
     }
@@ -220,8 +219,8 @@ Population genetico(Population population)
     }
     return new_pop;
 }
-
-bool stop_condition(Population population, int i)
+#ifdef UNLIMITED
+bool stop_condition(Population population)
 {
     std::vector<int> fitness_values;
     for (auto each: population) {
@@ -234,11 +233,31 @@ bool stop_condition(Population population, int i)
         }
     }
 
-    if (i == MAX_ITERATION)
-        return true;
-    
     return false;
 }
+
+#else
+bool stop_condition(Population population, unsigned int i)
+{
+    std::vector<int> fitness_values;
+    for (auto each: population) {
+        fitness_values.push_back(each.fitness_value);
+    }
+
+    for (auto each: population) {
+        if (each.fitness_value == MAX_FITNESS) {
+            return true;
+        }
+    }
+
+    if (i == MAX_ITERATION) {
+        return true;
+    }
+
+    return false;
+}
+
+#endif
 
 inline void print_individual(Individual ind) 
 {
@@ -249,22 +268,29 @@ inline void print_individual(Individual ind)
 
 int main(int argc, char* argv[])
 {
-    int i = 0;
+    unsigned int i = 0;
     seed();
 
     Population population = generate_population();
-    
+
+    #ifdef UNLIMITED   
+    while (!stop_condition(population)) {
+        population = genetico(population);
+        i++;
+    }
+    #else
     while (!stop_condition(population, i)) {
         population = genetico(population);
         i++;
     }
+    #endif
 
-    std::cout << "Iteration number " << i << "\n";
-    
+    std::cout << "Iteration number " << i << "\n";    
     print_pop(population);
 
     for (auto each: population) {
         if (each.fitness_value == MAX_FITNESS) {
+            std::cout << "\nFound optimal: \n";
             print_individual(each);
         }
     }
