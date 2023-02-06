@@ -5,7 +5,6 @@
 #include <vector>
 #include <cstdlib>
 #include <algorithm>
-#include <math.h>
 #include "dbg.h"
 
 #define seed() (srand((unsigned) time(NULL)))
@@ -27,7 +26,12 @@ typedef struct individual {
 
 typedef std::vector<Individual> Population;
 
-inline void print_individual(Individual ind);
+inline void print_individual(Individual ind) 
+{
+    std::cout << "[ ";
+    print_vec(ind.sequence);
+    std::cout << "] fitness = " << ind.fitness_value << "\n";
+}
 
 #define print_pop(P) for (auto ind: P) print_individual(ind);
 
@@ -125,15 +129,12 @@ Population selection(Population population)
         
         debug("filled p1_rn");
         
-        if (p1_rn.size() == 0) continue;
-
-        try {
-            parent1 = p1_rn[0];
-            break;
-        } catch(const std::exception& e) {
-            debug("Catched exception: %s", e.what());
+        if (p1_rn.size() == 0){ 
+            debug("p1_rn has size zero");
             continue;
         }
+        parent1 = p1_rn[0];
+        break;
     }
 
     while (true) {
@@ -150,27 +151,24 @@ Population selection(Population population)
         }
         debug("filled p2_rn");
 
-        try {
-            if (p2_rn.size() == 0) continue;
-            debug("this is the size of p2_rn: %lu", p2_rn.size());
-            int t = randint(p2_rn.size());
-            debug("got randint t: %d", t);
-
-            parent2 = p2_rn[t];
-            debug("assigned");
-            if (parent1.sequence != parent2.sequence) {
-                debug("checked sequences");
-                break;
-            }
-            else {
-                continue;
-            }
-        }
-        catch(const std::exception& e) {
-            debug("catched exception: %s", e.what());
+        if (p2_rn.size() == 0){ 
+            debug("p2_rn has size zero.");
             continue;
         }
+        
+        debug("this is the size of p2_rn: %lu", p2_rn.size());
+        int t = randint(p2_rn.size());
+        debug("got randint t: %d", t);
 
+        parent2 = p2_rn[t];
+        debug("assigned");
+        if (parent1.sequence != parent2.sequence) {
+            debug("checked sequences");
+            break;
+        }
+        else {
+            continue;
+        }
     }
     
     Population parents = {parent1, parent2};
@@ -182,7 +180,7 @@ std::vector<int> generate_chromossome()
     std::vector<int> sequence(NQUEENS);
 
     for (int i = 0; i < NQUEENS; i++) {
-        sequence[i] = randint_interval(1, NQUEENS);
+        sequence[i] = randint(NQUEENS);
     }
 
     return sequence;
@@ -219,6 +217,7 @@ Population genetico(Population population)
     }
     return new_pop;
 }
+
 #ifdef UNLIMITED
 bool stop_condition(Population population)
 {
@@ -259,13 +258,6 @@ bool stop_condition(Population population, unsigned int i)
 
 #endif
 
-inline void print_individual(Individual ind) 
-{
-    std::cout << "[ ";
-    print_vec(ind.sequence);
-    std::cout << " ] fitness = " << ind.fitness_value << "\n";
-}
-
 int main(int argc, char* argv[])
 {
     unsigned int i = 0;
@@ -273,7 +265,7 @@ int main(int argc, char* argv[])
 
     Population population = generate_population();
 
-    #ifdef UNLIMITED   
+    #ifdef UNLIMITED
     while (!stop_condition(population)) {
         population = genetico(population);
         i++;
