@@ -94,6 +94,7 @@ void mutate(Individual* child)
     debug("num: %d", num);
 
     child->sequence[num] = randint(NQUEENS);
+    child->fitness_value = fitness(child->sequence);
 }
 
 Population selection(Population population)
