@@ -10,10 +10,10 @@
 #define RANDOM_PARENTS
 
 #define NUM_CITIES 25
-#define POP_SIZE 100
+#define POP_SIZE 10
 #define ELITE_SIZE 20
 #define MUTATION_RATE 0.01
-#define MAX_ITERATIONS 1000
+#define MAX_ITERATIONS 2
 
 #define seed() (srand((unsigned) time(NULL)))
 #define randint(n) (rand() % n)
@@ -30,7 +30,7 @@ typedef struct city {
     int y;
 } City;
 
-#define print_coord(C) (std::cout << "(" << (C).x << ", " << (C).y << "); ")
+#define print_city(C) (std::cout << "(" << (C).x << ", " << (C).y << "); ")
 
 typedef struct individual {
     std::vector<City> route;
@@ -97,7 +97,6 @@ void mutate(Individual *child)
         // debug("random double: %lf", random_d);
         if (random_d < MUTATION_RATE) {
             index_swap = randint(NUM_CITIES);
-            // debug("index swap: %d", index_swap);
             swap_cities(&child->route[i], &child->route[index_swap]);
         }
     }
@@ -116,7 +115,6 @@ Individual crossover(Individual parent1, Individual parent2)
             : child.route.push_back(parent2.route[i]);
     }
     child.fitness_value = fitness(child.route);
-    
     return child;
 }
 
@@ -151,11 +149,6 @@ Population GA(Population population)
     return new_population;
 }
 
-void test_shuffle(std::vector<City> cities)
-{
-    generate_chromossome(cities);
-}
-
 int main(int argc, char* argv[])
 {
     seed();
@@ -169,13 +162,7 @@ int main(int argc, char* argv[])
 
     Population population = generate_population(cities);
 
-    for (auto each: population) {
-        std::cout << "\n";
-        func_each_vec(each.route, print_coord);
-        std::cout << " fitness = " << each.fitness_value << "\n";
-    }
     i = 0;
-
     while (i < MAX_ITERATIONS) {
         population = GA(population);
         i++;
@@ -183,13 +170,13 @@ int main(int argc, char* argv[])
 
     std::cout << "Iteration number " << i << "\n";
     for (auto each: population) {
-        func_each_vec(each.route, print_coord);
+        func_each_vec(each.route, print_city);
         std::cout << " Fitness value: " << each.fitness_value << "\n\n";
     }
 
     std::cout << "Best result: \n";
     sort(population.begin(), population.end(), fit_check);
-    func_each_vec(population[0].route, print_coord);
+    func_each_vec(population[0].route, print_city);
     std::cout << " Fitness value: " << population[0].fitness_value << "\n";
 
     return 0;
