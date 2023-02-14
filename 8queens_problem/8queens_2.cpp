@@ -67,25 +67,44 @@ int fitness(std::vector<int> sequence)
     return MAX_FITNESS - ataques;
 }
 
+void swap_child(Individual *c1, Individual *c2) {
+    Individual temp;
+    temp = *c1;
+    *c1 = *c2;
+    *c2 = temp;
+}
+
 Individual crossover(Population parents)
 {
     int i = 0;
     debug("pai1 size: %lu", parents[0].sequence.size());
     int pivot = randint(parents[0].sequence.size());
     debug("pivot: %d", pivot);
-    Individual child;
+    Individual child1, child2, temp;
 
-    for (i = 0; i < pivot; i++) {
-        child.sequence.push_back(parents[0].sequence[i]);
-    }
-    for (i = pivot; i < parents[1].sequence.size(); i++) {
-        child.sequence.push_back(parents[1].sequence[i]);
+    for (i = 0; i < parents[0].sequence.size(); i++) {
+        (i < pivot) ? child1.sequence.push_back(parents[0].sequence[i]) : 
+        child1.sequence.push_back(parents[1].sequence[1]);
     }
 
-    child.fitness_value = fitness(child.sequence);
+    child1.fitness_value = fitness(child1.sequence);
+    
+    if (child1.fitness_value > parents[0].fitness_value) {
+        swap_child(&child1, &parents[0]);
+    }
+    
+    for (i = 0; i < parents[0].sequence.size(); i++) {
+        (i < pivot) ? child2.sequence.push_back(parents[1].sequence[i]) :
+        child2.sequence.push_back(parents[0].sequence[i]);
+    }
 
-    return child;
+    child2.fitness_value = fitness(child2.sequence);
 
+    if (child2.fitness_value > parents[1].fitness_value) {
+        swap_child(&child2, &parents[1]);
+    }
+
+    return child1;
 }
 
 void mutate(Individual* child) 
