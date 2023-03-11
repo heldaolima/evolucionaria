@@ -1,9 +1,4 @@
 #include "grammar.hpp"
-#include <cstdlib>
-
-#define seed() (srand((unsigned)time(NULL)))
-#define randint(n) (rand() % n)
-#define randint_interval(i, n) (i + randint(n))
 
 inline void new_node(Node &node, types type, std::string value, std::vector<Node> next)
 {

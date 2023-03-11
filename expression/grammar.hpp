@@ -3,6 +3,11 @@
 
 #include <string>
 #include <vector>
+#include <cstdlib>
+
+#define seed() (srand((unsigned)time(NULL)))
+#define randint(n) (rand() % n)
+#define randint_interval(i, n) (i + randint(n))
 
 enum types {
     numero, operador, delimitador,
@@ -12,13 +17,11 @@ enum types {
 #define QTD_PRODUCTIONS_S 2
 #define QTD_PRODUCTIONS_T 2
 
-
 typedef struct node{
     enum types type;
     std::string value;
     std::vector<node> next;
 } Node;
-
 
 /*
     S -> T + T | T - T
@@ -29,6 +32,5 @@ typedef struct node{
 void production_S(Node &node, int index);
 void production_T(Node &node, int index);
 void production_N(Node &node);
-
 
 #endif
