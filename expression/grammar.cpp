@@ -55,6 +55,39 @@ void production_T(Node &node, int index)
 
 void production_N(Node &node)
 {
-    int num = randint(10);
+    int num = randint(QTD_NUMS);
     new_node(node, NUMERO, std::to_string(num), {});
+}
+
+Node get_node_at(Node &curr_node, int curr_position, int goal_position)
+{
+    if (curr_position == goal_position) {
+        return curr_node;
+    }
+
+    for (Node next: curr_node.next){
+        Node gotten = get_node_at(next, curr_position+1, goal_position);
+        if (gotten.type != NOTHING) {
+            return gotten;
+        }
+    }
+
+    Node ans;
+    new_node(ans, NOTHING, "", {});
+    
+    return ans;
+}
+
+bool swap_node_at(Node &curr_node, Node substitute, int curr_position, int goal_position)
+{
+    if (curr_position == goal_position) {
+        curr_node = substitute;
+        return true;
+    }
+    for (Node &next: curr_node.next) {
+        if (swap_node_at(next, substitute, curr_position+1, goal_position)) {
+            return true;
+        }
+    }
+    return false;
 }

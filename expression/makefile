@@ -1,5 +1,7 @@
+OUT_NAME=main.out
+
 all: expression grammar
-	g++ -o expression_prob main.cpp expression.o grammar.o
+	g++ -o $(OUT_NAME) main.cpp expression.o grammar.o
 
 expression: grammar
 	g++ -c expression.cpp
@@ -7,5 +9,5 @@ expression: grammar
 grammar:
 	g++ -c grammar.cpp
 
-clear:
-	rm -rf *.o *.out *.gch
+clean:
+	rm -rf *.o *.out *.gch $(OUT_NAME)
