@@ -1,6 +1,7 @@
 #ifndef _genetico_hpp
 #define _genetico_hpp
 
+#include "dbg.h"
 #include <iostream>
 #include <cstdlib>
 #include <vector>
@@ -25,20 +26,11 @@ inline double randfrom(double min, double max)
 
 #define MAX_DADOS_GSM 30.0f
 #define MAX_DADOS_WCDMA 80.0f
-#define MAX_VOZ_GSM 30.0f
+#define MAX_VOZ_GSM 125.0f
 #define MAX_VOZ_WCDMA 150.0f
 
-enum servicos
-{
-    GSM,
-    WCDMA
-};
-
-enum tipos_servico
-{
-    DADOS,
-    VOZ
-};
+#define MAX_DADOS (MAX_DADOS_GSM + MAX_DADOS_WCDMA)
+#define MAX_VOZ (MAX_VOZ_GSM + MAX_VOZ_WCDMA)
 
 enum tipos_usuarios
 {
@@ -50,9 +42,9 @@ enum tipos_usuarios
 
 typedef struct cromossomo
 {
-    double qtd_dados_gsm = 0.0, qtd_dados_wcdma = 0.0;
-    double qtd_voz_gsm = 0.0, qtd_voz_wcdma = 0.0;
-    double media = 0.0;
+    double dados_gsm = 0.0, dados_wcdma = 0.0;
+    double voz_gsm = 0.0, voz_wcdma = 0.0;
+    double fitness = 0.0;
 } Cromossomo;
 
 typedef std::vector<Cromossomo> Populacao;
@@ -79,7 +71,7 @@ inline double gerar_usuarios(tipos_usuarios tipo)
     return value;
 }
 
-double calcular_media();
+double fitness(Cromossomo individuo);
 void printar_populacao(Populacao populacao);
 Cromossomo gerar_cromossomo();
 Populacao gerar_populacao();
