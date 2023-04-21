@@ -1,7 +1,8 @@
 #include "genetico.hpp"
 #include "dbg.h"
-#include <math.h>
 #include <algorithm>
+#include <string>
+#include <bitset>
 
 bool order_by_fitness(const Cromossomo &a, const Cromossomo &b)
 {
@@ -23,16 +24,6 @@ inline double media(Cromossomo c)
     tot += c.dados_wcdma;
 
     return tot / 4.0f;
-}
-
-inline double custo_gsm(double dados, double voz)
-{
-    return std::abs(30 - dados + ((6.0f / 25.0f) * voz));
-}
-
-inline double custo_wcdma(double dados, double voz)
-{
-    return std::abs(80 - dados + ((8.0f / 15.0f) * voz));
 }
 
 double fitness(Cromossomo individuo)
@@ -135,4 +126,69 @@ Populacao selecionar(Populacao populacao)
     }
 
     return selecionados;
+}
+
+std::string cromossomo_to_bin(Quantizado q)
+{
+    std::string result = "";
+    
+    result += std::bitset<32>(q.dados_gsm).to_string();
+    result += std::bitset<32>(q.voz_gsm).to_string();
+    result += std::bitset<32>(q.dados_wcdma).to_string();
+    result += std::bitset<32>(q.voz_wcdma).to_string();
+    
+    return result;
+}
+
+std::vector<std::string> populacao_to_bin(Populacao p)
+{
+    std::vector<std::string> binarios(p.size());
+    for (int i = 0; i < p.size(); i++) {
+        binarios[i] = cromossomo_to_bin(quantizar(p[i]));
+    }
+    return binarios;
+}
+
+void mutacao(std::vector<std::string> &populacao)
+{
+    int idx = 0;
+    // não muta o primeiro
+    for (int i = 1; i < TAM_POPULACAO; i++) {
+        for (int j = 0; j < QTD_BITS_MUTADOS; j++) {
+            idx = randint(QTD_BITS_MUTADOS);
+            populacao[i][idx] = (populacao[i][idx] == '1') ? '0' : '1'; 
+        }
+    }
+}
+
+Populacao cruzamento(Populacao &populacao)
+{
+    // for (int i = NUM_SELECIONADOS; i < TAM_POPULACAO - (NUM_SELECIONADOS / 2); i++) {
+        std::vector<std::string> binarios = populacao_to_bin(populacao);
+        int i_pai = randint(TAM_POPULACAO);
+        int i_mae = randint(TAM_POPULACAO);
+
+        while (i_mae == i_pai) {
+            i_mae = randint(TAM_POPULACAO);
+        }        
+
+        std::string filho1 = "";
+        std::string filho2 = "";
+
+        int pivot = randint(binarios[i_pai].length());
+        for (int j = 0; j < binarios[i_pai].length(); j++) {
+            if (j < pivot) {
+                filho1 += binarios[i_pai][j];
+                filho2 += binarios[i_mae][j];
+            }
+            else {
+                filho1 += binarios[i_mae][j];
+                filho2 += binarios[i_pai][j];
+            }
+        }
+    
+    // }
+
+
+
 }

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <vector>
+#include <math.h>
 
 #define seed() (srand((unsigned)time(NULL)))
 #define randint(n) (rand() % n)
@@ -25,7 +26,9 @@ inline double randfrom(double min, double max)
 #define PROB_MUTACAO 0.2f
 #define PROB_ELITE 0.5f
 
-#define NUM_SELECIONADOS ((int) PROB_ELITE*TAM_POPULACAO)
+#define NUM_SELECIONADOS ((int) (PROB_ELITE*TAM_POPULACAO))
+
+#define QTD_BITS_MUTADOS 8
 
 #define MAX_DADOS_GSM 30.0f
 #define MAX_DADOS_WCDMA 80.0f
@@ -51,6 +54,11 @@ typedef struct cromossomo
     double media = 0.0;
 } Cromossomo;
 
+typedef struct {
+    double dados_gsm = 0, dados_wcdma = 0;
+    double voz_gsm = 0, voz_wcdma = 0;
+} Quantizado;
+
 typedef std::vector<Cromossomo> Populacao;
 
 inline double gerar_usuarios(tipos_usuarios tipo)
@@ -75,10 +83,33 @@ inline double gerar_usuarios(tipos_usuarios tipo)
     return value;
 }
 
+inline double custo_gsm(double dados, double voz)
+{
+    return std::abs(30 - dados + ((6.0f / 25.0f) * voz));
+}
+
+inline double custo_wcdma(double dados, double voz)
+{
+    return std::abs(80 - dados + ((8.0f / 15.0f) * voz));
+}
+
+inline Quantizado quantizar(Cromossomo c)
+{
+    Quantizado q;
+    q.voz_gsm = (c.dados_gsm / 125) * pow(2, 9) - 1;
+    q.dados_gsm = (c.dados_gsm / 30) * pow(2, 9) - 1;
+    q.voz_wcdma = (c.voz_wcdma / 150) * pow(2, 9) - 1;
+    q.dados_wcdma = (c.dados_wcdma / 80) * pow(2, 9) - 1;
+
+    return q; 
+}
+
 Cromossomo gerar_cromossomo();
 Populacao gerar_populacao();
 void printar_populacao(Populacao populacao);
 void ordenar_populacao(Populacao &populacao);
 Populacao selecionar(Populacao populacao);
+Populacao cruzamento(Populacao populacao);
+void mutacao(std::vector<std::string> &populacao);
 
 #endif
