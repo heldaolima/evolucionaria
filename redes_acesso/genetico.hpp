@@ -23,6 +23,9 @@ inline double randfrom(double min, double max)
 
 #define TAM_POPULACAO 4
 #define PROB_MUTACAO 0.2f
+#define PROB_ELITE 0.5f
+
+#define NUM_SELECIONADOS ((int) PROB_ELITE*TAM_POPULACAO)
 
 #define MAX_DADOS_GSM 30.0f
 #define MAX_DADOS_WCDMA 80.0f
@@ -45,6 +48,7 @@ typedef struct cromossomo
     double dados_gsm = 0.0, dados_wcdma = 0.0;
     double voz_gsm = 0.0, voz_wcdma = 0.0;
     double fitness = 0.0;
+    double media = 0.0;
 } Cromossomo;
 
 typedef std::vector<Cromossomo> Populacao;
@@ -71,9 +75,10 @@ inline double gerar_usuarios(tipos_usuarios tipo)
     return value;
 }
 
-double fitness(Cromossomo individuo);
-void printar_populacao(Populacao populacao);
 Cromossomo gerar_cromossomo();
 Populacao gerar_populacao();
+void printar_populacao(Populacao populacao);
+void ordenar_populacao(Populacao &populacao);
+Populacao selecionar(Populacao populacao);
 
 #endif
