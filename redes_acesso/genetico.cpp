@@ -2,7 +2,8 @@
 #include "dbg.h"
 #include <algorithm>
 #include <string>
-#include <bitset>
+#include "binario_utils.hpp"
+
 
 bool order_by_fitness(const Cromossomo &a, const Cromossomo &b)
 {
@@ -128,43 +129,21 @@ Populacao selecionar(Populacao populacao)
     return selecionados;
 }
 
-std::string cromossomo_to_bin(Quantizado q)
-{
-    std::string result = "";
-    
-    result += std::bitset<32>(q.dados_gsm).to_string();
-    result += std::bitset<32>(q.voz_gsm).to_string();
-    result += std::bitset<32>(q.dados_wcdma).to_string();
-    result += std::bitset<32>(q.voz_wcdma).to_string();
-    
-    return result;
-}
-
-std::vector<std::string> populacao_to_bin(Populacao p)
-{
-    std::vector<std::string> binarios(p.size());
-    for (int i = 0; i < p.size(); i++) {
-        binarios[i] = cromossomo_to_bin(quantizar(p[i]));
-    }
-    return binarios;
-}
-
-void mutacao(std::vector<std::string> &populacao)
+void mutacao(std::string &cromossomo)
 {
     int idx = 0;
     // não muta o primeiro
-    for (int i = 1; i < TAM_POPULACAO; i++) {
-        for (int j = 0; j < QTD_BITS_MUTADOS; j++) {
-            idx = randint(QTD_BITS_MUTADOS);
-            populacao[i][idx] = (populacao[i][idx] == '1') ? '0' : '1'; 
-        }
+    for (int i = 0; i < QTD_BITS_MUTADOS; i++) {
+        idx = randint(QTD_BITS_MUTADOS);
+        cromossomo[idx] = (cromossomo[idx] == '1') ? '0' : '1'; 
     }
 }
 
-Populacao cruzamento(Populacao &populacao)
+void cruzamento(std::vector<std::string> &populacao)
 {
-    // for (int i = NUM_SELECIONADOS; i < TAM_POPULACAO - (NUM_SELECIONADOS / 2); i++) {
-        std::vector<std::string> binarios = populacao_to_bin(populacao);
+    for (int i = 1; i < TAM_POPULACAO - 1; i++) {
+        // std::vector<Binario> binarios = populacao_to_bin(populacao);
+    
         int i_pai = randint(TAM_POPULACAO);
         int i_mae = randint(TAM_POPULACAO);
 
@@ -175,20 +154,47 @@ Populacao cruzamento(Populacao &populacao)
         std::string filho1 = "";
         std::string filho2 = "";
 
-        int pivot = randint(binarios[i_pai].length());
-        for (int j = 0; j < binarios[i_pai].length(); j++) {
+        int pivot = randint(populacao[i_pai].length());
+        
+        for (int j = 0; j < populacao[i_pai].length(); j++) {
             if (j < pivot) {
-                filho1 += binarios[i_pai][j];
-                filho2 += binarios[i_mae][j];
+                filho1 += populacao[i_pai][j];
+                filho2 += populacao[i_mae][j];
             }
             else {
-                filho1 += binarios[i_mae][j];
-                filho2 += binarios[i_pai][j];
+                filho1 += populacao[i_mae][j];
+                filho2 += populacao[i_pai][j];
             }
         }
+
+        populacao[i] = filho1;
+        populacao[i+1] = filho2;
+    }
+}
+
+Cromossomo decodificar_cromossomo(std::string binario)
+{
+    /* 
+    binario += std::bitset<8>(q.dados_gsm).to_string();
+    binario += std::bitset<8>(q.voz_gsm).to_string();
+    binario += std::bitset<8>(q.dados_wcdma).to_string();
+    binario += std::bitset<8>(q.voz_wcdma).to_string();*/
     
-    // }
+    Cromossomo c;
+    c.dados_gsm = desquantizar(binario.substr(0, 8), DADOS_GSM); 
+    c.voz_gsm = desquantizar(binario.substr(8, 8), VOZ_GSM);
+    c.dados_wcdma = desquantizar(binario.substr(16, 8), DADOS_WCDMA);
+    c.voz_wcdma = desquantizar(binario.substr(24, 8), VOZ_WCDMA);
+    c.fitness = fitness(c);
 
+    return c;
+}
 
-
+Populacao decodificar_populacao(std::vector<std::string> binarios)
+{
+    Populacao populacao(TAM_POPULACAO);
+    for (int i = 0; i < TAM_POPULACAO; i++) {
+        populacao[i] = decodificar_cromossomo(binarios[i]);
+    }
+    return populacao;
 }

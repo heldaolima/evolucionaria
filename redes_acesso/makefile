@@ -1,7 +1,10 @@
 OUT_NAME=main.out
 
-all: genetico
-	g++ -o $(OUT_NAME) main.cpp genetico.o 
+all: genetico binarios
+	g++ -o $(OUT_NAME) main.cpp genetico.o binario_utils.o 
+
+binarios: genetico
+	g++ -c binario_utils.cpp
 
 genetico: 
 	g++ -c genetico.cpp
