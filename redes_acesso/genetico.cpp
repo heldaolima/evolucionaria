@@ -48,17 +48,19 @@ Cromossomo gerar_cromossomo()
     cromossomo.voz_gsm = gerar_usuarios(VOZ_GSM);
     cromossomo.voz_wcdma = gerar_usuarios(VOZ_WCDMA);
 
+    cromossomo.fitness = fitness(cromossomo);
+    cromossomo.media = media(cromossomo);
+
     return cromossomo;
 }
 
 Populacao gerar_populacao()
 {
+    ler_valores_do_arquivo();
     Populacao populacao(TAM_POPULACAO);
     for (int i = 0; i < TAM_POPULACAO; i++)
     {
         populacao[i] = gerar_cromossomo();
-        populacao[i].fitness = fitness(populacao[i]);
-        populacao[i].media = media(populacao[i]);
     }
 
     return populacao;
@@ -134,7 +136,7 @@ void mutacao(std::string &cromossomo)
     int idx = 0;
     // não muta o primeiro
     for (int i = 0; i < QTD_BITS_MUTADOS; i++) {
-        idx = randint(QTD_BITS_MUTADOS);
+        idx = randint(cromossomo.size());
         cromossomo[idx] = (cromossomo[idx] == '1') ? '0' : '1'; 
     }
 }
@@ -173,13 +175,7 @@ void cruzamento(std::vector<std::string> &populacao)
 }
 
 Cromossomo decodificar_cromossomo(std::string binario)
-{
-    /* 
-    binario += std::bitset<8>(q.dados_gsm).to_string();
-    binario += std::bitset<8>(q.voz_gsm).to_string();
-    binario += std::bitset<8>(q.dados_wcdma).to_string();
-    binario += std::bitset<8>(q.voz_wcdma).to_string();*/
-    
+{   
     Cromossomo c;
     c.dados_gsm = desquantizar(binario.substr(0, 8), DADOS_GSM); 
     c.voz_gsm = desquantizar(binario.substr(8, 8), VOZ_GSM);
@@ -197,4 +193,12 @@ Populacao decodificar_populacao(std::vector<std::string> binarios)
         populacao[i] = decodificar_cromossomo(binarios[i]);
     }
     return populacao;
+}
+
+bool acima_dos_limites(Cromossomo c) {
+    return c.dados_gsm > MAX_DADOS_GSM ||
+        c.dados_wcdma > MAX_DADOS_WCDMA ||
+        c.voz_gsm > MAX_VOZ_GSM ||
+        c.voz_wcdma > MAX_VOZ_WCDMA;
+    
 }
