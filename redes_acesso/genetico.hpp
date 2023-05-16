@@ -31,6 +31,11 @@ inline double doubleRandfrom(double min, double max)
 
 #define QTD_BITS_MUTADOS 8
 
+#define DADOS_GSM_ORIGINAL 30.0f
+#define DADOS_WCDMA_ORIGINAL 80.0f
+#define VOZ_GSM_ORIGINAL 125.0f
+#define VOZ_WCDMA_ORIGINAL 150.0f
+
 static double MAX_DADOS_GSM = 0;
 static double MAX_DADOS_WCDMA = 0;
 static double MAX_VOZ_GSM = 0;
@@ -111,7 +116,7 @@ static void gerar_novos_limites()
         outputFile << doubleRandfrom(0.0f, MAX_LIM) << "\n"; 
         outputFile << doubleRandfrom(0.0f, MAX_LIM) << "\n";    
         outputFile << doubleRandfrom(0.0f, MAX_LIM) << "\n";    
-        outputFile << doubleRandfrom(0.0f, MAX_LIM);
+        outputFile << doubleRandfrom(0.0f, MAX_LIM) << "";
 
         outputFile.close();
 
@@ -119,6 +124,19 @@ static void gerar_novos_limites()
     } else {
         std::cout << "Erro ao abrir o arquivo\n";
         exit(0);
+    }
+}
+
+static void restaurar_limites()
+{
+    std::ofstream outputFile(caminho, std::ios::trunc);
+    if (outputFile.is_open()) {
+        outputFile << DADOS_GSM_ORIGINAL << ".0\n"; 
+        outputFile << DADOS_WCDMA_ORIGINAL << ".0\n";
+        outputFile << VOZ_GSM_ORIGINAL << ".0\n";
+        outputFile << VOZ_WCDMA_ORIGINAL << ".0";
+
+        outputFile.close();
     }
 }
 

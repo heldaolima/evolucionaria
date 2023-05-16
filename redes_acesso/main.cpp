@@ -33,7 +33,7 @@ Populacao ciclo(Populacao populacao, int iteracao)
 int main(int argc, char* argv[])
 {
     seed();
-
+    
     int i = 1;
     Populacao populacao = gerar_populacao();
     ordenar_populacao(populacao);
@@ -41,6 +41,7 @@ int main(int argc, char* argv[])
         populacao = ciclo(populacao, i);
         ++i;
     }
+    restaurar_limites();
 
     return 0;
 }
